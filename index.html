@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meadow Cats</title>
+  <meta name="description" content="Solve math problems to earn food and raise a kitten.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <div id="scene" class="scene" aria-hidden="true"></div>
+
+  <p id="storage-warning" class="banner" role="alert" hidden>
+    This browser isn’t saving progress right now, so changes last only until you close this tab.
+  </p>
+
+  <header class="hud">
+    <div class="hud-top">
+      <div class="identity">
+        <h1 id="cat-name">Meadow Cats</h1>
+        <p id="cat-stage" class="stage-line"></p>
+      </div>
+      <button type="button" id="open-collection" class="btn btn-quiet">Collection</button>
+    </div>
+    <div class="xp">
+      <label for="xp-bar" id="xp-label">XP</label>
+      <progress id="xp-bar" max="100" value="0"></progress>
+    </div>
+    <p id="status" class="toast" role="status" aria-live="polite"></p>
+  </header>
+
+  <main>
+    <div id="walker" class="walker">
+      <div class="hearts" id="hearts" aria-hidden="true"></div>
+      <div class="float-xp" id="float-xp" aria-hidden="true"></div>
+      <button type="button" id="pet-button" class="pet" aria-label="Pet your cat">
+        <span id="cat-art" class="cat-holder"></span>
+      </button>
+      <span class="bowl" aria-hidden="true"></span>
+    </div>
+
+    <aside class="rail" aria-label="Food">
+      <section id="foods" class="foods">
+        <article class="food" data-food="kibble">
+          <svg class="food-icon" viewBox="0 0 8 8" aria-hidden="true" shape-rendering="crispEdges"><path fill="#8a5a36" d="M1 4h2v2H1zM4 5h2v2H4zM3 2h2v2H3zM5 3h2v1H5z"/><path fill="#c08a58" d="M1 4h1v1H1zM4 5h1v1H4zM3 2h1v1H3z"/></svg>
+          <div class="food-text"><h2>Kibble</h2><p class="food-meta">Algebra, +10 XP</p></div>
+          <p class="servings"><span data-count>0</span> <span data-unit>servings</span></p>
+          <div class="food-actions">
+            <button type="button" class="btn" data-earn aria-label="Earn kibble">Earn</button>
+            <button type="button" class="btn btn-quiet" data-feed>Feed</button>
+          </div>
+        </article>
+        <article class="food" data-food="fish">
+          <svg class="food-icon" viewBox="0 0 8 8" aria-hidden="true" shape-rendering="crispEdges"><path fill="#4f93c4" d="M1 3h1v2H1zM2 4h1v1H2zM3 2h3v4H3zM6 3h1v2H6z"/><path fill="#a8d8f2" d="M3 4h3v1H3z"/><path fill="#1c1410" d="M5 3h1v1H5z"/></svg>
+          <div class="food-text"><h2>Fish</h2><p class="food-meta">Basic calculus, +25 XP</p></div>
+          <p class="servings"><span data-count>0</span> <span data-unit>servings</span></p>
+          <div class="food-actions">
+            <button type="button" class="btn" data-earn aria-label="Earn fish">Earn</button>
+            <button type="button" class="btn btn-quiet" data-feed>Feed</button>
+          </div>
+        </article>
+        <article class="food" data-food="deluxe">
+          <svg class="food-icon" viewBox="0 0 8 8" aria-hidden="true" shape-rendering="crispEdges"><path fill="#d8574c" d="M0 4h8v1H0zM1 5h6v1H1zM2 6h4v1H2z"/><path fill="#f0a340" d="M1 3h2v1H1zM4 3h3v1H4z"/><path fill="#6fbf5f" d="M3 2h1v2H3z"/><path fill="#ffffff" d="M2 0h1v1H2zM5 1h1v1H5z" opacity=".8"/></svg>
+          <div class="food-text"><h2>Deluxe meal</h2><p class="food-meta">Advanced calculus, +50 XP</p></div>
+          <p class="servings"><span data-count>0</span> <span data-unit>servings</span></p>
+          <div class="food-actions">
+            <button type="button" class="btn" data-earn aria-label="Earn a deluxe meal">Earn</button>
+            <button type="button" class="btn btn-quiet" data-feed>Feed</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="adult-panel" class="adult-panel" hidden>
+        <h2 id="adult-title">All grown up!</h2>
+        <p id="adult-text"></p>
+        <button type="button" id="adopt-button" class="btn">Adopt a kitten</button>
+      </section>
+    </aside>
+
+  </main>
+
+  <dialog id="challenge-dialog" aria-labelledby="challenge-title">
+    <div class="dialog-head">
+      <h2 id="challenge-title">Challenge</h2>
+      <button type="button" class="btn btn-quiet close" data-close>Close</button>
+    </div>
+    <p id="challenge-prompt" class="prompt"></p>
+    <div id="choices" class="choices"></div>
+    <p id="challenge-hint" class="hint" hidden></p>
+    <div id="challenge-solution" class="solution" hidden>
+      <h3>Worked solution</h3>
+      <p id="solution-text"></p>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-quiet" id="reveal-button">Show solution</button>
+      <button type="button" class="btn" id="new-question-button" hidden>New question</button>
+      <button type="button" class="btn" id="back-button" hidden>Back to cat</button>
+    </div>
+  </dialog>
+
+  <dialog id="adopt-dialog" aria-labelledby="adopt-title">
+    <form id="adopt-form" method="dialog" novalidate>
+      <h2 id="adopt-title">Name your kitten</h2>
+      <p id="adopt-note" class="note" hidden></p>
+      <div class="adopt-preview" id="adopt-preview" aria-hidden="true"></div>
+      <label for="name-input">Name</label>
+      <input id="name-input" name="name" type="text" autocomplete="off" placeholder="Mochi" aria-describedby="name-help">
+      <p id="name-help" class="help">Up to 24 characters. Leave blank to use Mochi.</p>
+      <fieldset class="colors">
+        <legend>Fur color</legend>
+        <div id="color-options" class="color-options"></div>
+      </fieldset>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-quiet" id="adopt-cancel">Cancel</button>
+        <button type="submit" class="btn" id="adopt-confirm">Adopt</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="collection-dialog" aria-labelledby="collection-title">
+    <div class="dialog-head">
+      <h2 id="collection-title">Your grown cats</h2>
+      <button type="button" class="btn btn-quiet close" data-close>Close</button>
+    </div>
+    <p id="collection-empty" class="note">No grown cats yet. When your kitten reaches level 10 and you adopt a new one, they’ll live here.</p>
+    <ol id="collection-list" class="collection"></ol>
+  </dialog>
+
+  <dialog id="recovery-dialog" aria-labelledby="recovery-title">
+    <h2 id="recovery-title">This save can’t be read</h2>
+    <p>The saved game in this browser is damaged or from an unsupported version. It hasn’t been changed. Download a copy before you decide what to do.</p>
+    <p><a id="download-save" class="btn btn-quiet" download="meadow-cats-save.txt" href="#">Download saved data</a></p>
+    <label class="confirm"><input type="checkbox" id="reset-confirm"> I understand resetting permanently deletes this save.</label>
+    <p id="recovery-error" class="error" hidden></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-quiet" id="play-unsaved">Play without saving</button>
+      <button type="button" class="btn btn-danger" id="reset-save" disabled>Reset local save</button>
+    </div>
+  </dialog>
+</body>
+</html>
